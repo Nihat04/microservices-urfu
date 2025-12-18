@@ -16,14 +16,10 @@ public sealed class ProductApplicationService(IProductRepository productReposito
     : IProductApplicationService
 {
     public async Task<Product?> GetProductsByIdAsync(Guid id, CancellationToken ct) =>
-        await productRepository.GetByIdAsync(new(id), ct);
+        await productRepository.GetByIdAsync(id, ct);
 
     public async Task<IReadOnlyList<Product?>> GetProductsByIdsAsync(
         IReadOnlyCollection<Guid> ids,
         CancellationToken ct
-    ) =>
-        await productRepository.GetByIdsAsReadOnlyAsync(
-            [.. ids.Select(id => new ProductId(id))],
-            ct
-        );
+    ) => await productRepository.GetByIdsAsReadOnlyAsync(ids, ct);
 }

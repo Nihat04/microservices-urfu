@@ -10,7 +10,7 @@ public class ServerDbContext(DbContextOptions<ServerDbContext> contextOptions)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ServerDbContext).Assembly);
+        base.OnModelCreating(modelBuilder);
     }
 }

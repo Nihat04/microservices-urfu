@@ -5,9 +5,9 @@ namespace ProductService.Domain.Repositories;
 
 public interface IProductRepository : IRepository<Product>
 {
-    public Task<Product?> GetByIdAsync(ProductId id, CancellationToken ct);
+    public Task<Product?> GetByIdAsync(Guid id, CancellationToken ct);
     public Task<IReadOnlyList<Product>> GetByIdsAsReadOnlyAsync(
-        IReadOnlyCollection<ProductId> ids,
+        IReadOnlyCollection<Guid> ids,
         CancellationToken ct
     );
 }
