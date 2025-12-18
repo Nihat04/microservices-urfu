@@ -1,4 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using ProductService.Application;
+using ProductService.Infrastructure;
+using ProductService.Infrastructure.Storage;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ServerDbContext>(config =>
+{
+    config.UseNpgsql(builder.Configuration.GetConnectionString("Server"));
+    config.EnableSensitiveDataLogging();
+});
+builder.Services.RegisterInfrastructureLayer();
+builder.Services.RegisterApplicationLayer();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

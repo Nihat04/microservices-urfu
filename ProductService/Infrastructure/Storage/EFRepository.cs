@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using ProductService.Domain.Common;
 
-namespace ProductService.Infrastructure.DataStorage;
+namespace ProductService.Infrastructure.Storage;
 
 public abstract class EFRepository<TAggregateRoot, TDbContext>(TDbContext context)
     : IRepository<TAggregateRoot>
     where TAggregateRoot : class, IAggregateRoot
     where TDbContext : DbContext
 {
-    private readonly DbContext _context = context;
+    protected readonly TDbContext _context = context;
 
     public Task SaveChangesAsync(CancellationToken ct = default) => _context.SaveChangesAsync(ct);
 }
