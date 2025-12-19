@@ -10,7 +10,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - product_db
+      product_db:
+        condition: service_healthy
     networks:
       - product_network
 
@@ -26,6 +27,12 @@ services:
       - product_network
     ports:
       - "5433:5432" #to development
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "--quiet"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
   
 volumes:
   product_db_data:
