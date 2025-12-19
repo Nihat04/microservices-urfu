@@ -2,6 +2,6 @@ namespace Common.Contracts;
 
 public enum SortOrder
 {
-    Ascending = "asc",
-    Descending = "desc",
+    Ascending = 1,
+    Descending = 2,
 }
