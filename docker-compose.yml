@@ -1,0 +1,32 @@
+services:
+  product_service:
+    build:
+      context: . 
+      dockerfile: ./ProductService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=product_db;Port=5432;Database=${POSTGRES_PRODUCT_DB};Username=${POSTGRES_PRODUCT_USER};Password=${POSTGRES_PRODUCT_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - product_db
+    networks:
+      - product_network
+
+  product_db:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_PRODUCT_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PRODUCT_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_PRODUCT_DB}
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+    networks:
+      - product_network
+  
+volumes:
+  product_db_data:
+
+networks:
+  product_network:
