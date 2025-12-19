@@ -24,6 +24,8 @@ services:
       - product_db_data:/var/lib/postgresql/data
     networks:
       - product_network
+    ports:
+      - "5433:5432" #to development
   
 volumes:
   product_db_data:
