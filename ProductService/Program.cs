@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ServerDbContext>(config =>
 {
-    config.UseNpgsql(builder.Configuration.GetConnectionString("DataBase"));
+    config.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     config.EnableSensitiveDataLogging();
 });
 builder.Services.RegisterInfrastructureLayer();
