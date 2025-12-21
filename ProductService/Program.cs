@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ServerDbContext>(config =>
 {
-    config.UseNpgsql(builder.Configuration.GetConnectionString("DataBase"));
+    config.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     config.EnableSensitiveDataLogging();
 });
 builder.Services.RegisterInfrastructureLayer();
@@ -18,6 +18,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ServerDbContext>();
+    db.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {

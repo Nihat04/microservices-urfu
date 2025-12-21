@@ -22,10 +22,10 @@ public class PaginatedResult<T>
                 nameof(totalItems)
             );
 
-        _items = items ?? throw new ArgumentNullException(nameof(items));
-        _currentPage = currentPage;
-        TotalItems = totalItems;
-        _pageSize = pageSize;
-        TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        Items = items ?? throw new ArgumentNullException(nameof(items));
+        Page = currentPage;
+        TotalCount = totalItems;
+        PageSize = pageSize; 
+        TotalCount = (int)Math.Ceiling(totalItems / (double)pageSize);
     }
 }
