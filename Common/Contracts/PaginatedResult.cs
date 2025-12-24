@@ -3,29 +3,19 @@ namespace Common.Contracts;
 public class PaginatedResult<T>
 {
     public IReadOnlyList<T> Items { get; }
-    public int Page { get; }
-    public int PageSize { get; }
+    public Pagination Pagination { get; }
     public int TotalCount { get; }
 
-    public PaginatedResult(List<T> items, int currentPage, int totalItems, int pageSize)
+    public PaginatedResult(List<T> items, int currentPage, int pageSize, int totalItems)
+        : this(items, new(currentPage, pageSize), totalItems) { }
+
+    public PaginatedResult(IReadOnlyList<T> items, Pagination pagination, int totalItems)
     {
-        if (currentPage < 1)
-            throw new ArgumentException(
-                "Current page must be greater than 0.",
-                nameof(currentPage)
-            );
-        if (pageSize < 1)
-            throw new ArgumentException("Page size must be greater than 0.", nameof(pageSize));
         if (totalItems < 0)
-            throw new ArgumentException(
-                "Total items must be greater than or equal to 0.",
-                nameof(totalItems)
-            );
+            throw new ArgumentException("Total items must be positive", nameof(totalItems));
 
         Items = items ?? throw new ArgumentNullException(nameof(items));
-        Page = currentPage;
+        Pagination = pagination;
         TotalCount = totalItems;
-        PageSize = pageSize; 
-        TotalCount = (int)Math.Ceiling(totalItems / (double)pageSize);
     }
 }

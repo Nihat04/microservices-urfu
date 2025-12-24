@@ -12,9 +12,9 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
     public DateTime UpdatedAt { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    public int AvaliableQuantity => StockQuantity - BookedQuantity;
-    public bool IsInStock => AvaliableQuantity > 0;
-    public bool IsOutOfStock => AvaliableQuantity <= 0;
+    public int AvailableQuantity => StockQuantity - BookedQuantity;
+    public bool IsInStock => AvailableQuantity > 0;
+    public bool IsOutOfStock => AvailableQuantity <= 0;
 
     private Product()
         : base(Guid.Empty) { }
@@ -68,8 +68,10 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
         if (quantity <= 0)
             throw new ArgumentException("Booking quantity must be positive");
 
-        if (AvaliableQuantity < quantity)
-            return false;
+        if (AvailableQuantity < quantity)
+            throw new ArgumentException(
+                $"Cannot book {quantity} items, only {AvailableQuantity} available."
+            );
 
         BookedQuantity += quantity;
         UpdatedAt = DateTime.UtcNow;
@@ -83,7 +85,9 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
             throw new ArgumentException("Cancel quantity must be positive");
 
         if (BookedQuantity < quantity)
-            throw new ArgumentException("Cannot cancel more than booked");
+            throw new ArgumentException(
+                $"Cannot cancel more than booked items. Available: {BookedQuantity}."
+            );
 
         BookedQuantity -= quantity;
         UpdatedAt = DateTime.UtcNow;
@@ -95,20 +99,17 @@ public sealed class Product : Entity<Guid>, IAggregateRoot
             throw new ArgumentException("Ship quantity must be positive");
 
         if (BookedQuantity < quantity)
-            throw new ArgumentException("Cannot ship more than booked");
-
-        if (StockQuantity < quantity)
-            throw new ArgumentException("Not enough available quantity");
+            throw new ArgumentException($"Cannot ship more than booked. Booked: {BookedQuantity}.");
 
         BookedQuantity -= quantity;
         StockQuantity -= quantity;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void Return(int quantity)
+    public void Add(int quantity)
     {
         if (quantity <= 0)
-            throw new ArgumentException("Return quantity must be positive");
+            throw new ArgumentException("Add quantity must be positive");
 
         StockQuantity += quantity;
         UpdatedAt = DateTime.UtcNow;

@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using ProductService.Domain.Common;
 using ProductService.Domain.Entities;
 
 namespace ProductService.Infrastructure.Storage;
 
 public class ServerDbContext(DbContextOptions<ServerDbContext> contextOptions)
-    : DbContext(contextOptions)
+    : DbContext(contextOptions),
+        IUnitOfWork
 {
     public DbSet<Product> Products => Set<Product>();
 

@@ -1,4 +1,4 @@
-namespace ProductService.Application;
+namespace ProductService.Application.Extensions;
 
 public static class ApplicationExtensions
 {

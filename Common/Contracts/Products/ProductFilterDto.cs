@@ -1,17 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Common.Contracts.Products;
 
-enum ProductSortBy
+public record ProductFilterDto(
+    [MaxLength(200)] string? Name = null,
+    [Range(0, 1000000)] decimal? PriceFrom = null,
+    [Range(0, 1000000)] decimal? PriceTo = null
+)
 {
-    Name,
-    Price,
-}
-
-record ProductFilterDto(
-    ProductSortBy? SortBy,
-    SortOrder? SortOrder,
-    int Page,
-    int PageSize,
-    string? Name = null,
-    decimal? PriceFrom = null,
-    decimal? PriceTo = null
-);
+    public bool IsFilterEmpty() =>
+        string.IsNullOrEmpty(Name) && PriceFrom == null && PriceTo == null;
+};

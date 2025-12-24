@@ -1,6 +1,7 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using ProductService.Application;
-using ProductService.Infrastructure;
+using ProductService.Application.Extensions;
+using ProductService.Infrastructure.Extensions;
 using ProductService.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,12 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
 builder.Services.RegisterInfrastructureLayer();
 builder.Services.RegisterApplicationLayer();
 
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
