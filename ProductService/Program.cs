@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Metrics;
 using ProductService.Application.Extensions;
 using ProductService.Infrastructure.Extensions;
 using ProductService.Infrastructure.Storage;
@@ -13,6 +14,11 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
 });
 builder.Services.RegisterInfrastructureLayer();
 builder.Services.RegisterApplicationLayer();
+
+builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics
+    .AddAspNetCoreInstrumentation()
+    .AddPrometheusExporter());
+
 
 builder
     .Services.AddControllers()
@@ -40,5 +46,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 
 app.Run();
