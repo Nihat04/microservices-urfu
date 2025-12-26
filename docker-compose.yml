@@ -1,5 +1,6 @@
 services:
   product_service:
+    container_name: product_service
     build:
       context: . 
       dockerfile: ./ProductService/Dockerfile
@@ -16,6 +17,7 @@ services:
       - product_network
 
   product_db:
+    container_name: product_db
     image: postgres:18-alpine
     environment:
       - POSTGRES_USER=${POSTGRES_PRODUCT_USER}
@@ -27,15 +29,54 @@ services:
       - product_network
     ports:
       - "5433:5432" #to development
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "--quiet"]
       interval: 1s
       timeout: 5s
       retries: 10
   
+
+  prometheus:
+    image: prom/prometheus:v3.8.0
+    volumes:
+      - ./infra/prometheus:/etc/prometheus/
+      - prometheus_data:/prometheus/
+    container_name: prometheus-microservices
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    networks:
+      - monitoring_network
+      - product_network
+
+    
+  grafana:
+    image: grafana/grafana:12.4.0-20447603318
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - DS_PROMETHEUS=someuid123
+      - PROMETHEUS_URL=http://prometheus-microservices:9090
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/dashboards:/var/lib/grafana/dashboards
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+    container_name: grafana-microservices
+    networks:
+      - monitoring_network
+  
+  
 volumes:
   product_db_data:
+  grafana_data:
+  prometheus_data:
 
 networks:
   product_network:
+  monitoring_network:
