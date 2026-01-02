@@ -79,7 +79,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - product_network
+      - monitoring_network
   
+  loki:
+    hostname: loki
+    container_name: loki
+    image: grafana/loki:latest
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring_network
   
 volumes:
   product_db_data:
