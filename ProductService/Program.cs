@@ -1,10 +1,21 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Metrics;
 using ProductService.Application.Extensions;
 using ProductService.Infrastructure.Extensions;
 using ProductService.Infrastructure.Storage;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//logger configuration
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("service", "product-service")
+    .WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter())
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<ServerDbContext>(config =>
 {
@@ -13,6 +24,11 @@ builder.Services.AddDbContext<ServerDbContext>(config =>
 });
 builder.Services.RegisterInfrastructureLayer();
 builder.Services.RegisterApplicationLayer();
+
+builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics
+    .AddAspNetCoreInstrumentation()
+    .AddPrometheusExporter());
+
 
 builder
     .Services.AddControllers()
@@ -40,5 +56,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 
 app.Run();
