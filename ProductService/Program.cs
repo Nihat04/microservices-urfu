@@ -4,8 +4,20 @@ using OpenTelemetry.Metrics;
 using ProductService.Application.Extensions;
 using ProductService.Infrastructure.Extensions;
 using ProductService.Infrastructure.Storage;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//logger configuration
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("service", "product-service")
+    .WriteTo.Console(
+        outputTemplate:
+        "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<ServerDbContext>(config =>
 {
