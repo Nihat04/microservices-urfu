@@ -1,0 +1,22 @@
+sources:
+  docker:
+    type: docker_logs
+    include_containers:
+      - product_service
+
+transforms:
+  docker_parse_json:
+    type: remap
+    inputs:
+      - docker
+    source: |
+      . = parse_json!(.message)
+
+sinks: 
+  console_sink:
+    type: console
+    inputs:
+      - docker_parse_json
+    encoding:
+      codec: json
+    
