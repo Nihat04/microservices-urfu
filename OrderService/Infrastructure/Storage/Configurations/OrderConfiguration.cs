@@ -12,18 +12,19 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasKey(o => o.Id);
         builder.Property(o => o.Id).HasColumnName("id");
+        builder.Property(o => o.UserId).IsRequired();
         builder.Property(o => o.State).IsRequired();
         builder
             .Property(o => o.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired()
-            .HasDefaultValueSql("NOW()")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAdd();
         builder
             .Property(o => o.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired()
-            .HasDefaultValueSql("NOW()")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .ValueGeneratedOnAddOrUpdate();
 
         builder

@@ -15,5 +15,6 @@ public class ServerDbContext(DbContextOptions<ServerDbContext> contextOptions)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ServerDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Order>().Navigation(o => o.Items).AutoInclude();
     }
 }

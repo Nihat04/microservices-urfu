@@ -16,12 +16,12 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder
             .Property(oi => oi.Quantity)
             .HasColumnName("quantity")
-            .HasPrecision(18, 4)
+            .HasPrecision(12, 4)
             .IsRequired();
         builder
             .Property(oi => oi.PricePerUnit)
             .HasColumnName("price_per_unit")
-            .HasPrecision(18, 4)
+            .HasPrecision(12, 4)
             .IsRequired();
 
         builder.Property<Guid>("OrderId").HasColumnName("order_id").IsRequired();
