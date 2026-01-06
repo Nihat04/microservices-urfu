@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Common.Contracts.Orders;
 
-public record CreateOrderRequest(Guid UserId, IReadOnlyList<OrderItemDto> Items)
+public record OrderCreateRequest(Guid UserId, IReadOnlyList<OrderItemDto> Items)
 {
     public decimal CalculateTotalPrice() => Items.Sum(item => item.CalculateTotalPrice());
 }
@@ -14,7 +14,7 @@ public record OrderResponse(
     OrderState OrderState,
     DateTime CreatedAt,
     DateTime UpdatedAt
-) : CreateOrderRequest(UserId, Items);
+) : OrderCreateRequest(UserId, Items);
 
 public record OrderItemDto(
     Guid ProductId,
@@ -28,7 +28,7 @@ public record OrderItemDto(
 public enum OrderState
 {
     Created,
-    Pending,
+    Paid,
     Completed,
     Cancelled,
 }
