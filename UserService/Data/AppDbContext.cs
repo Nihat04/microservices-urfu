@@ -1,21 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UserService.Models;
+﻿using UserService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace UserService.Data;
 
 public class AppDbContext : DbContext
 {
-    protected readonly IConfiguration Configuration;
-
-    public AppDbContext(IConfiguration configuration)
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
     {
-        Configuration = configuration;
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
-    }
-    
     public DbSet<User> User { get; set; }
 }

@@ -5,8 +5,8 @@ namespace UserService.Repository;
 
 public interface IRepository<T> where T : BaseEntity
 {
-    public Task<ActionResult<T>> Get(Guid id);
-    public Task<ActionResult<T>> Create(T entity);
-    public Task<ActionResult> Update(Guid id, T entity);
-    public Task<ActionResult> Delete(Guid id);
+    Task<T?> GetAsync(Guid id);
+    Task<T> CreateAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(Guid id);
 }

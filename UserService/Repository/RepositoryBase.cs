@@ -1,74 +1,43 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.Models;
 
 namespace UserService.Repository;
 
-public class RepositoryBase<T> : ControllerBase, IRepository<T> where T : BaseEntity
+public class RepositoryBase<T> : IRepository<T> where T : BaseEntity
 {
-    protected readonly DbContext _context;
-    protected DbSet<T> dbSet;
-    private readonly IUnitOfWork _unitOfWork;
+    protected readonly AppDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public RepositoryBase(IUnitOfWork unitOfwork)
+    public RepositoryBase(AppDbContext context)
     {
-        _unitOfWork = unitOfwork;
-        dbSet = _unitOfWork.Context.Set<T>();
+        _context = context;
+        _dbSet = _context.Set<T>();
     }
 
-    //Get Request
-    public async Task<ActionResult<T>> Get(Guid id)
+    public async Task<T?> GetAsync(Guid id)
     {
-        var data = await dbSet.FindAsync(id);
-        return Ok(data);
+        return await _dbSet.FindAsync(id);
     }
 
-    //Create Request
-    public async Task<ActionResult<T>> Create(T entity)
+    public async Task<T> CreateAsync(T entity)
     {
-        dbSet.Add(entity);
-        await _unitOfWork.SaveChangesAsync();
+        await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
         return entity;
     }
 
-    //Update Request
-    public async Task<ActionResult> Update(Guid id, T entity)
+    public async Task UpdateAsync(T entity)
     {
-        var existingOrder = await dbSet.FindAsync(entity.Id);
-        if (existingOrder == null)
-        {
-            return NotFound();
-        }
-
-        _unitOfWork.Context.Entry(existingOrder).CurrentValues.SetValues(entity);
-
-        try
-        {
-            await _unitOfWork.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            throw;
-        }
-
-        return NoContent();
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
     }
 
-    //Delete Request
-    public async Task<ActionResult> Delete(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        var data = await dbSet.FindAsync(id);
-        if (data == null)
-        {
-            return NotFound();
-        }
-
-        dbSet.Remove(data);
-        await _unitOfWork.SaveChangesAsync();
-        return NoContent();
+        var entity = await _dbSet.FindAsync(id);
+        if (entity == null) throw new KeyNotFoundException($"Entity with id {id} not found.");
+        _dbSet.Remove(entity);
+        await _context.SaveChangesAsync();
     }
-    
 }
