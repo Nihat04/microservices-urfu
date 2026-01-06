@@ -81,7 +81,7 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__DefaultConnection=Host=order_db;Port=5432;Database=${POSTGRES_ORDER_DB};Username=${POSTGRES_ORDER_USER};Password=${POSTGRES_ORDER_PASSWORD}
     ports:
-      - "8080:8080"
+      - "8083:8080"
     depends_on:
       order_db:
         condition: service_healthy
@@ -100,7 +100,7 @@ services:
     networks:
       - order_network
     ports:
-      - "5433:5432" #to development
+      - "5435:5432" #to development
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "--quiet"]
       interval: 1s
@@ -177,4 +177,3 @@ networks:
   monitoring_network:
   user_network:
   order_network:
-  monitoring_network:
