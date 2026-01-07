@@ -3,12 +3,40 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using StackExchange.Redis;
 using System.Text;
+using Gateway;
 using Gateway.Endpoints;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => 
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+
+builder.Services.AddScoped<ServiceClient>();
 
 // ---------- Auth ----------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -20,7 +48,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("super-secret-key"))
+                Encoding.UTF8.GetBytes("secretKey1234567890secretKey1234567890"))
         };
     });
 
@@ -29,6 +57,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //        ConnectionMultiplexer.Connect("redis:6379"));
 
 // ---------- HttpClients + Polly ----------
+
 builder.Services.AddHttpClient("users", c =>
 {
     c.BaseAddress = new Uri("http://user_service:8080/auth");
@@ -56,9 +85,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication(); 
-//app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapAuthEndpoints();
+app.MapOrderEndpoints();
+app.MapProductEndpoints();
 app.Run();
 
