@@ -9,6 +9,7 @@ using UserService.Repository;
 using LoginRequest = Common.Contracts.Users.LoginRequest;
 using RegisterRequest = Common.Contracts.Users.RegisterRequest;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
