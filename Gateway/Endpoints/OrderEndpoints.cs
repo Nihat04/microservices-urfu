@@ -32,14 +32,14 @@ public static class OrderEndpoints
                 request);
 
             return creatingOrderResponce;
-        }).RequireAuthorization();
+        });
         
         //auth-admin
         //Все заказы
         app.MapGet("get-orders", async (ServiceClient client) => 
             await client.ForwardGetAsync<PaginatedResult<OrderResponse>>(
                 "orders", 
-                $"/api/v1/orders")).RequireAuthorization();
+                $"/api/v1/orders"));
         
         
         //auth
@@ -47,7 +47,7 @@ public static class OrderEndpoints
         app.MapGet("get-orders/{ids}", async (ServiceClient client, [FromQuery]string[] ids) =>  
             await client.ForwardGetAsync<PaginatedResult<OrderResponse>>(
                 "orders", 
-                $"/api/v1/orders?ids={ids}")).RequireAuthorization();
+                $"/api/v1/orders?ids={ids}"));
 
 
     }

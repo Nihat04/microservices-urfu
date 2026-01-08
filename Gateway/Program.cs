@@ -9,6 +9,12 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+{
+    o.SerializerOptions.IncludeFields = true;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => 
 {
@@ -39,18 +45,30 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<ServiceClient>();
 
 // ---------- Auth ----------
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(o =>
+builder.Services
+    .AddAuthentication(options =>
     {
-        o.TokenValidationParameters = new TokenValidationParameters
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        var key = Encoding.UTF8.GetBytes("secretKey1234567890secretKey1234567890");
+
+        options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+
             ValidateIssuer = false,
             ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("secretKey1234567890secretKey1234567890"))
+            ValidateLifetime = true,
+
+            ClockSkew = TimeSpan.Zero
         };
     });
+
+builder.Services.AddAuthorization();
 
 // ---------- Redis ----------
 // builder.Services.AddSingleton<IConnectionMultiplexer>(
@@ -85,6 +103,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication(); 
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapAuthEndpoints();

@@ -9,18 +9,21 @@ public static class ProductEndpoints
     {
         //non-auth
         //all products
-        app.MapGet("products", async (ServiceClient client) =>  
-        await client.ForwardGetAsync<PaginatedResult<ProductResponse>>(
-            "products", 
-            $"/api/v1/prdoducts"));
-        
+        app.MapGet("/products", async (ServiceClient client) =>
+            await client.ForwardGetAsync<PaginatedResult<ProductResponse>
+            >(
+                "products",
+                "/api/v1/products/list"
+            )
+        );
+            
         //auth
         //create product
         app.MapPost("products", async (ServiceClient client, ProductCreateRequest productCreateRequest) =>
             await client.ForwardPostAsync<ProductCreateRequest, ProductResponse>(
                 "products",
                 "/api/v1/products",
-                productCreateRequest)).RequireAuthorization();
+                productCreateRequest));
     }
     
 }
