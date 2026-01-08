@@ -23,7 +23,6 @@ public static class OrderEndpoints
                     "orders",
                     $"/api/v1/products/{productId}/book?quantity={quantity}",
                     null);
-                //тут мб надо проверку на ошибки
             }
 
             var creatingOrderResponce = await client.ForwardPostAsync<OrderCreateRequest, OrderResponse>(
@@ -39,15 +38,7 @@ public static class OrderEndpoints
         app.MapGet("get-orders", async (ServiceClient client) => 
             await client.ForwardGetAsync<PaginatedResult<OrderResponse>>(
                 "orders", 
-                $"/api/v1/orders"));
-        
-        
-        //auth
-        //Конкретные
-        app.MapGet("get-orders/{ids}", async (ServiceClient client, [FromQuery]string[] ids) =>  
-            await client.ForwardGetAsync<PaginatedResult<OrderResponse>>(
-                "orders", 
-                $"/api/v1/orders?ids={ids}"));
+                $"/api/v1/orders/list"));
 
 
     }
