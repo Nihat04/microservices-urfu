@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Common.Contracts;
 
 public class PaginatedResult<T>
@@ -6,16 +8,18 @@ public class PaginatedResult<T>
     public Pagination Pagination { get; }
     public int TotalCount { get; }
 
-    public PaginatedResult(List<T> items, int currentPage, int pageSize, int totalItems)
-        : this(items, new(currentPage, pageSize), totalItems) { }
-
-    public PaginatedResult(IReadOnlyList<T> items, Pagination pagination, int totalItems)
+    [JsonConstructor]
+    public PaginatedResult(IReadOnlyList<T> items, Pagination pagination, int totalCount)
     {
-        if (totalItems < 0)
-            throw new ArgumentException("Total items must be positive", nameof(totalItems));
+        if (totalCount < 0)
+            throw new ArgumentException("Total items must be positive", nameof(totalCount));
 
         Items = items ?? throw new ArgumentNullException(nameof(items));
         Pagination = pagination;
-        TotalCount = totalItems;
+        TotalCount = totalCount;
     }
+
+    // старый конструктор для удобства
+    public PaginatedResult(List<T> items, int currentPage, int pageSize, int totalItems)
+        : this(items, new Pagination(currentPage, pageSize), totalItems) { }
 }

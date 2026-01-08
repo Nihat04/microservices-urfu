@@ -10,11 +10,14 @@ public static class ProductEndpoints
         //non-auth
         //all products
         app.MapGet("/products", async (ServiceClient client) =>
-            await client.ForwardGetAsync<PaginatedResult<ProductResponse>
-            >(
-                "products",
-                "/api/v1/products/list"
-            )
+            {
+                var res = await client.ForwardGetAsync<PaginatedResult<ProductResponse>>(
+                    "products",
+                    "/api/v1/products/list"
+                ); 
+                return res;
+            }
+            
         );
             
         //auth

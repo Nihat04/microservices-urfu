@@ -23,7 +23,7 @@ public class ServiceClient(IHttpClientFactory factory)
     {
         var client = factory.CreateClient(clientName);
         var response = await client.GetAsync(endpoint);
-        
+        Console.WriteLine(response.Content);
         if (!response.IsSuccessStatusCode)
             return Results.Problem(await response.Content.ReadAsStringAsync());
             
