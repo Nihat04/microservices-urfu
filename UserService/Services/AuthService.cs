@@ -23,7 +23,7 @@ public class AuthService
         _passwordHasher =  new PasswordHasher<User>();
     }
     
-    public async Task<User> RegisterAsync(RegisterRequest request)
+    public async Task<RegisterResponce> RegisterAsync(RegisterRequest request)
     {
         var user = new User
         {
@@ -32,7 +32,12 @@ public class AuthService
             Name = request.FullName
         };
         user.HashedPassword = _passwordHasher.HashPassword(user, request.Password);
-        var res = await _userRepository.CreateAsync(user);
+        await _userRepository.CreateAsync(user);
+        var res = new RegisterResponce(
+            Id: user.Id,
+            Email: user.Email,
+            Name: user.Name
+        );
         return res; 
     }
     
