@@ -2,6 +2,110 @@
 
 ### Описание эндпоинтов микросервисов
 
+#### **GatewayService**
+
+API Gateway - единая точка входа для всех клиентских запросов. Маршрутизирует запросы к соответствующим микросервисам (UserService, OrderService, ProductService).
+
+**Swagger UI для тестирования:**
+
+**http://localhost:8086/swagger**
+
+**Эндпоинты:**
+
+1. **`POST /auth/login`**
+
+    - **Описание:** Аутентификация пользователя.
+
+    - **Параметры:** `LoginRequest` (email, пароль).
+
+    - **Возвращает:** `AuthResponse` (JWT токен доступа).
+
+    - **Маршрутизация:** `UserService` (`http://user_service:8080/auth/auth/login`).
+
+2. **`POST /users/register`**
+
+    - **Описание:** Регистрация нового пользователя.
+
+    - **Параметры:** `RegisterRequest` (email, полное имя, пароль).
+
+    - **Возвращает:** `RegisterResponse` (информация о зарегистрированном пользователе).
+
+    - **Маршрутизация:** `UserService` (`http://user_service:8080/auth/auth/register`).
+
+3. **`POST /create-order`**
+
+    - **Описание:** Создание нового заказа. Gateway автоматически блокирует товары на складе перед созданием заказа.
+
+    - **Параметры:** `OrderCreateRequest` (содержит список товаров с количеством и ценой).
+
+    - **Возвращает:** `OrderResponse` (информация о созданном заказе).
+
+    - **Маршрутизация:** 
+        - Сначала вызывает `ProductService` для бронирования каждого товара (`POST /api/v1/products/{productId}/book?quantity={quantity}`)
+        - Затем создает заказ через `OrderService` (`POST /api/v1/orders`).
+
+4. **`GET /get-orders`**
+
+    - **Описание:** Получение списка всех заказов с пагинацией.
+
+    - **Параметры:** Отсутствуют.
+
+    - **Возвращает:** `PaginatedResult<OrderResponse>`.
+
+    - **Маршрутизация:** `OrderService` (`http://order_service:8080/api/v1/orders/list`).
+
+5. **`GET /products`**
+
+    - **Описание:** Получение списка всех товаров с пагинацией, сортировкой и фильтрацией.
+
+    - **Параметры:** 
+        - `pagination` (номер страницы и размер страницы),
+        - `sortBy` (сортировка по названию, цене или дате создания),
+        - `sortOrder` (порядок сортировки: по возрастанию или убыванию),
+        - `filter` (фильтрация по параметрам товара).
+
+    - **Возвращает:** `PaginatedResult<ProductResponse>`.
+
+    - **Маршрутизация:** `ProductService` (`http://product_service:8080/api/v1/products/list`).
+
+6. **`POST /products`**
+
+    - **Описание:** Создание нового товара.
+
+    - **Параметры:** `ProductCreateRequest` (название, цена, количество).
+
+    - **Возвращает:** `ProductResponse` (информация о созданном товаре).
+
+    - **Маршрутизация:** `ProductService` (`http://product_service:8080/api/v1/products`).
+
+---
+
+### Технические детали
+
+**Запуск:**
+
+Gateway сервис запускается через Docker Compose и доступен на порту **8086**.
+
+**Интеграция с микросервисами:**
+
+- **UserService** (`http://user_service:8080/auth`) - с политикой Retry (3 попытки с задержкой 200мс)
+- **OrderService** (`http://order_service:8080`) - с политикой Circuit Breaker (3 ошибки, таймаут 30 секунд)
+- **ProductService** (`http://product_service:8080`) - прямой вызов
+
+**Технологии:**
+
+- .NET 8.0
+- ASP.NET Core Minimal APIs
+- JWT Bearer Authentication (настроено, но не используется на данный момент)
+- Polly (Retry Policy для UserService, Circuit Breaker для OrderService)
+- Swagger/OpenAPI
+- 
+**Примечание:**
+
+В настоящее время авторизация не применяется к эндпоинтам Gateway. Все эндпоинты доступны без JWT токена, хотя инфраструктура для JWT аутентификации настроена.
+
+---
+
 #### **OrderService**
 
 Микросервис для управления заказами.
